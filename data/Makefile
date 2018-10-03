@@ -9,3 +9,7 @@ setup:
 
 	sh concat_metabolites.sh
 	sh concat_proteins.sh
+	
+	rm -rf proteins
+	rm -rf metabolites
+
