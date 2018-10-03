@@ -6,6 +6,7 @@ WORKDIR /usr/src/app
 COPY beacon_controller /usr/src/app/beacon_controller
 COPY config /usr/src/app/config
 COPY beacon /usr/src/app/beacon
+COPY data   /usr/src/app/data
 
 COPY MANIFEST.in /usr/src/app/MANIFEST.in
 COPY setup.py /usr/src/app/setup.py
