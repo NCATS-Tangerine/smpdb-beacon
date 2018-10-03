@@ -3,6 +3,7 @@ from swagger_server.models.beacon_concept_with_details import BeaconConceptWithD
 from swagger_server.models.exact_match_response import ExactMatchResponse  # noqa: E501
 
 from beacon_controller import biolink_model as blm
+from beacon_controller.providers import metabolites, proteins, pathways
 
 def get_concept_details(concept_id):  # noqa: E501
     """get_concept_details
@@ -14,8 +15,14 @@ def get_concept_details(concept_id):  # noqa: E501
 
     :rtype: BeaconConceptWithDetails
     """
-    return 'do some magic!'
+    concept_id = concept_id.upper()
 
+    if concept_id.startswith('SMP'):
+        return pathways.search_by_pathway_curie(concept_id)
+    else:
+        results = metabolites.search_by_molecule_curie(concept_id)
+        results += proteins.search_by_molecule_curie(concept_id)
+        return results
 
 def get_concepts(keywords=None, categories=None, offset=None, size=None):  # noqa: E501
     """get_concepts
@@ -33,8 +40,32 @@ def get_concepts(keywords=None, categories=None, offset=None, size=None):  # noq
 
     :rtype: List[BeaconConcept]
     """
-    return 'do some magic!'
+    results = []
+    if categories is None or any(category in blm.ancestors('metabolite') for category in categories):
+        concepts = metabolites.search(keywords)
+        for d in concepts:
+            d['category'] = 'metabolite'
+        results.extend(concepts)
 
+    if categories is None or any(category in blm.ancestors('protein') for category in categories):
+        concepts = proteins.search(keywords)
+        for d in concepts:
+            d['category'] = 'protein'
+        results.extend(concepts)
+
+    if categories is None or any(category in blm.ancestors('pathway') for category in categories):
+        concepts = pathways.search(keywords)
+        for d in concepts:
+            d['category'] = 'pathway'
+        results.extend(concepts)
+
+    if offset is not None:
+        results = results[offset:]
+
+    if size is not None:
+        results = results[:size]
+
+    return results
 
 def get_exact_matches_to_concept_list(c):  # noqa: E501
     """get_exact_matches_to_concept_list

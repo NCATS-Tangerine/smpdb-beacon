@@ -4,10 +4,12 @@ setup(
     name="translator-knowledge-beacon",
     url="https://github.com/NCATS-Tangerine/translator-knowledge-beacon",
     version = "1.3.0",
-    packages = ['beacon_controller', 'config'],
+    packages = ['beacon_controller', 'config', 'data'],
     include_package_data=True,
     install_requires=[
         'BiolinkMG',
+        'pandas',
+        'numpy',
         'tornado',
         'requests',
         'flask',

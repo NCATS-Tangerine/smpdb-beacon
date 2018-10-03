@@ -5,6 +5,8 @@ from swagger_server.models.beacon_statement_object import BeaconStatementObject
 from swagger_server.models.beacon_statement_predicate import BeaconStatementPredicate
 from swagger_server.models.beacon_statement_subject import BeaconStatementSubject
 
+from beacon_controller.providers import metabolites, proteins, pathways
+
 def get_statement_details(statement_id, keywords=None, offset=None, size=None):  # noqa: E501
     """get_statement_details
 
@@ -52,4 +54,127 @@ def get_statements(s=None, s_keywords=None, s_categories=None, edge_label=None, 
 
     :rtype: List[BeaconStatement]
     """
-    return 'do some magic!'
+    statements = []
+    for source_id in s:
+        source_id = source_id.upper()
+
+        if source_id.startswith('SMP'):
+            # In this case source_id refers to a pathway
+
+            if edge_label is not None and edge_label != 'chemical_to_pathway_association':
+                continue
+            if relation is not None and relation != 'chemical to pathway association':
+                continue
+
+            p = proteins.search_by_pathway_curie(source_id)
+            m = metabolites.search_by_pathway_curie(source_id)
+
+            for concept in p + m:
+                concept_id = None
+                for key, value in concept.items():
+                    if 'curie' in key and value is not None:
+                        concept_id = value
+
+                if concept['category'] == 'metabolite':
+                    name = concept['Metabolite Name']
+                elif concept['category'] == 'protein':
+                    name = concept['Protein Name']
+                else:
+                    raise Exception(f'No category allowed of type {concept["category"]}')
+
+                s = BeaconStatementSubject(
+                    id=concept_id,
+                    categories=[concept['category']],
+                    name=name
+                )
+
+                p = BeaconStatementPredicate(
+                    edge_label='chemical_to_pathway_association',
+                    relation='chemical to pathway association',
+                    negated=False
+                )
+
+                o = BeaconStatementObject(
+                    id=source_id,
+                    categories=['pathway'],
+                    name=concept['Pathway Name']
+                )
+
+                statements.append(BeaconStatement(
+                    id=f'{concept_id}:chemical_to_pathway_association:{source_id}',
+                    subject=s,
+                    predicate=p,
+                    object=o
+                ))
+        else:
+            # In this case source_id refers either to a molecule
+
+            if edge_label is not None and edge_label != 'in_pathway_with':
+                continue
+            if relation is not None and relation != 'in pathway with':
+                continue
+
+
+            p = proteins.search_by_molecule_curie(source_id)
+            m = metabolites.search_by_molecule_curie(source_id)
+
+            for concept in p + m:
+                concept_id = None
+                for key, value in concept.items():
+                    if 'curie' in key and value is not None:
+                        concept_id = value
+
+                if concept['category'] == 'metabolite':
+                    object_name = concept['Metabolite Name']
+                elif concept['category'] == 'protein':
+                    object_name = concept['Protein Name']
+                else:
+                    raise Exception(f'No category allowed of type {concept["category"]}')
+
+                if concept['smpdb_curie'] is not None:
+                    subjects = proteins.search_by_pathway_curie(concept['smpdb_curie'])
+                    subjects += metabolites.search_by_pathway_curie(concept['smpdb_curie'])
+
+                    for subject in subjects:
+                        for key, value in subject.items():
+                            if 'curie' in key and value is not None:
+                                subject_id = value
+
+                        if subject['category'] == 'metabolite':
+                            subject_name = subject['Metabolite Name']
+                        elif subject['category'] == 'protein':
+                            subject_name = subject['Protein Name']
+                        else:
+                            raise Exception(f'No category allowed of type {concept["category"]}')
+
+                        if subject_name == object_name:
+                            continue
+
+                        s = BeaconStatementSubject(
+                            id=subject_id,
+                            categories=[subject['category']],
+                            name=subject_name
+                        )
+
+                        p = BeaconStatementPredicate(
+                            edge_label='in_pathway_with',
+                            relation='in pathway with',
+                            negated=False
+                        )
+
+                        o = BeaconStatementObject(
+                            id=concept_id,
+                            categories=[concept['category']],
+                            name=object_name
+                        )
+
+                        statements.append(BeaconStatement(
+                            id=f'{concept_id}:in_pathway_with:{source_id}',
+                            subject=s,
+                            predicate=p,
+                            object=o
+                        ))
+
+
+
+    return statements

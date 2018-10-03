@@ -1,1 +1,4 @@
 include config/config.yaml
+include data/smpdb_pathways.csv
+include data/metabolites.csv
+include data/proteins.csv

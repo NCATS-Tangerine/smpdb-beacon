@@ -2,6 +2,9 @@ install:
 	pip install .
 	pip install beacon/
 
+venv:
+	virtualenv -p python3.6 venv
+
 dev-install:
 	pip install -e .
 	pip install beacon/

@@ -12,9 +12,9 @@
 # Or you can install and use another.
 server: tornado
 
-basepath: /api/
+basepath: /beacon/smpdb/
 
-title: Biothings Explorer Translator Knowledge Beacon API
+title: Small Molecule Pathway Database Translator Knowledge Beacon API
 
 port: 8080
 
