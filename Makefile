@@ -13,13 +13,13 @@ run:
 	python -m swagger_server
 
 docker-build:
-	docker build -t ncats:knowledge-beacon .
+	docker build -t ncats:smpdb-beacon .
 
 docker-run:
-	docker run -d --rm --name beacon -p 8080:8080 ncats:knowledge-beacon
+	docker run -d --rm --name smpdb-beacon -p 8080:8080 ncats:smpdb-beacon
 
 docker-stop:
-	docker stop beacon
+	docker stop smpdb-beacon
 
 docker-logs:
-	docker logs beacon
+	docker logs smpdb-beacon
