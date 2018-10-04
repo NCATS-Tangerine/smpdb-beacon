@@ -174,7 +174,10 @@ def get_statements(s=None, s_keywords=None, s_categories=None, edge_label=None, 
                             predicate=p,
                             object=o
                         ))
+    if offset is not None:
+        statements = statements[offset:]
 
-
+    if size is not None:
+        statements = statements[:size]
 
     return statements
