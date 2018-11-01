@@ -5,7 +5,8 @@ from swagger_server.models.beacon_statement_object import BeaconStatementObject
 from swagger_server.models.beacon_statement_predicate import BeaconStatementPredicate
 from swagger_server.models.beacon_statement_subject import BeaconStatementSubject
 
-from beacon_controller.providers import metabolites, proteins, pathways
+import beacon_controller.providers.pandas_helper as dh
+import beacon_controller.biolink_model as blm
 
 def get_statement_details(statement_id, keywords=None, offset=None, size=None):  # noqa: E501
     """get_statement_details
@@ -23,7 +24,19 @@ def get_statement_details(statement_id, keywords=None, offset=None, size=None): 
 
     :rtype: BeaconStatementWithDetails
     """
-    return 'do some magic!'
+    print(statement_id)
+    subject_id, edge_label, relation, object_id = statement_id.split('|')
+    s = get_statements(s=[subject_id], edge_label=edge_label, relation=relation, t=[object_id], offset=0, size=1)
+    for statement in s:
+        return BeaconStatementWithDetails(
+            id=statement_id,
+            is_defined_by='http://smpdb.ca/',
+            provided_by='starinformatics',
+            qualifiers=[],
+            annotation=[],
+            evidence=[],
+        )
+
 
 
 def get_statements(s=None, s_keywords=None, s_categories=None, edge_label=None, relation=None, t=None, t_keywords=None, t_categories=None, offset=None, size=None):  # noqa: E501
@@ -52,8 +65,66 @@ def get_statements(s=None, s_keywords=None, s_categories=None, edge_label=None, 
     :param size: maximum number of concept entries requested by the client; if this argument is omitted, then the query is expected to returned all  the available data for the query
     :type size: int
 
-    :rtype: List[BeaconStatement]
+    :rtype: List[BeaconStatement].
     """
+    predicates = []
+    if edge_label is not None and edge_label != 'related_to':
+        predicates.append(edge_label)
+
+    if relation is not None:
+        predicates.append(relation)
+
+    edges = dh.find_edges(
+        s,
+        s_keywords,
+        s_categories,
+        t,
+        t_keywords,
+        t_categories,
+        predicates,
+        offset,
+        size
+    )
+
+    statements = []
+
+    for edge in edges:
+        if blm.is_slot(edge['predicate']):
+            edge_label = edge['predicate']
+            relation = edge['predicate']
+        else:
+            edge_label = 'related_to'
+            relation = edge['predicate']
+
+        s = BeaconStatementSubject(
+            id=edge['subject_id'],
+            name=edge['subject_name'],
+            categories=[edge['subject_category']],
+        )
+
+        p = BeaconStatementPredicate(
+            edge_label=edge_label,
+            relation=relation,
+            negated=False,
+        )
+
+        o = BeaconStatementSubject(
+            id=edge['object_id'],
+            name=edge['object_name'],
+            categories=[edge['object_category']],
+        )
+
+        statements.append(BeaconStatement(
+            id=f'{s.id}|{p.edge_label}|{p.relation}|{o.id}',
+            subject=s,
+            predicate=p,
+            object=o
+        ))
+
+    return statements
+
+
+
     statements = []
     for source_id in s:
         source_id = source_id.upper()
@@ -114,7 +185,6 @@ def get_statements(s=None, s_keywords=None, s_categories=None, edge_label=None, 
             if relation is not None and relation != 'in pathway with':
                 continue
 
-
             p = proteins.search_by_molecule_curie(source_id)
             m = metabolites.search_by_molecule_curie(source_id)
 
@@ -130,6 +200,16 @@ def get_statements(s=None, s_keywords=None, s_categories=None, edge_label=None, 
                     object_name = concept['Protein Name']
                 else:
                     raise Exception(f'No category allowed of type {concept["category"]}')
+
+                statements.append(build_statement(
+                    subject_id=concept_id,
+                    subject_category=concept['category'],
+                    subject_name=object_name,
+                    edge_label='chemical_to_pathway_association',
+                    object_id=concept['smpdb_curie'],
+                    object_name=concept['Pathway Name'],
+                    object_category='pathway'
+                ))
 
                 if concept['smpdb_curie'] is not None:
                     subjects = proteins.search_by_pathway_curie(concept['smpdb_curie'])
@@ -150,34 +230,60 @@ def get_statements(s=None, s_keywords=None, s_categories=None, edge_label=None, 
                         if subject_name == object_name:
                             continue
 
-                        s = BeaconStatementSubject(
-                            id=subject_id,
-                            categories=[subject['category']],
-                            name=subject_name
-                        )
-
-                        p = BeaconStatementPredicate(
+                        statements.append(build_statement(
+                            subject_id=subject_id,
+                            subject_name=subject_name,
+                            subject_category=subject['category'],
                             edge_label='in_pathway_with',
-                            relation='in pathway with',
-                            negated=False
-                        )
-
-                        o = BeaconStatementObject(
-                            id=concept_id,
-                            categories=[concept['category']],
-                            name=object_name
-                        )
-
-                        statements.append(BeaconStatement(
-                            id=f'{concept_id}:in_pathway_with:{source_id}',
-                            subject=s,
-                            predicate=p,
-                            object=o
+                            object_id=concept_id,
+                            object_name=object_name,
+                            object_category=concept['category']
                         ))
+
     if offset is not None:
         statements = statements[offset:]
 
     if size is not None:
         statements = statements[:size]
 
+    d = {}
+    for s in statements:
+        d[s.id] = s
+    statements = list(d.values())
+
     return statements
+
+
+def build_statement(
+    subject_id,
+    subject_name,
+    subject_category,
+    edge_label,
+    object_id,
+    object_name,
+    object_category
+):
+    s = BeaconStatementSubject(
+        id=subject_id,
+        categories=[subject_category],
+        name=subject_name
+    )
+
+    p = BeaconStatementPredicate(
+        edge_label=edge_label,
+        relation=edge_label.replace('_', ' '),
+        negated=False
+    )
+
+    o = BeaconStatementObject(
+        id=object_id,
+        categories=[object_category],
+        name=object_name
+    )
+
+    return BeaconStatement(
+        id=f'{subject_id}:{edge_label}:{object_id}',
+        subject=s,
+        predicate=p,
+        object=o
+    )

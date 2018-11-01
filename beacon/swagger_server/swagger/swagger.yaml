@@ -149,6 +149,7 @@ paths:
         type: "integer"
       - name: "size"
         in: "query"
+        default: 100
         description: "maximum number of concept entries requested by the client; if\
           \ this argument is omitted, then the query is expected to returned all the\
           \ available data for the query\n"
@@ -369,6 +370,7 @@ paths:
         type: "integer"
       - name: "size"
         in: "query"
+        default: 100
         description: "maximum number of concept entries requested by the client; if\
           \ this argument is omitted, then the query is expected to returned all \
           \ the available data for the query\n"
@@ -436,6 +438,7 @@ paths:
         type: "integer"
       - name: "size"
         in: "query"
+        default: 100
         description: "maximum number of evidence citation entries requested by the\
           \ client; if this  argument is omitted, then the query is expected to returned\
           \ all of the available annotation for this statement\n"

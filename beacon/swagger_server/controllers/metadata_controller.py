@@ -6,6 +6,7 @@ from swagger_server.models.beacon_knowledge_map_statement import BeaconKnowledge
 from swagger_server.models.beacon_predicate import BeaconPredicate  # noqa: E501
 from swagger_server import util
 
+import beacon_controller
 
 def get_concept_categories():  # noqa: E501
     """get_concept_categories
@@ -15,7 +16,7 @@ def get_concept_categories():  # noqa: E501
 
     :rtype: List[BeaconConceptCategory]
     """
-    return 'do some magic!'
+    return beacon_controller.get_concept_categories()
 
 
 def get_knowledge_map():  # noqa: E501
@@ -26,7 +27,7 @@ def get_knowledge_map():  # noqa: E501
 
     :rtype: List[BeaconKnowledgeMapStatement]
     """
-    return 'do some magic!'
+    return beacon_controller.get_knowledge_map()
 
 
 def get_predicates():  # noqa: E501
@@ -37,4 +38,4 @@ def get_predicates():  # noqa: E501
 
     :rtype: List[BeaconPredicate]
     """
-    return 'do some magic!'
+    return beacon_controller.get_predicates()

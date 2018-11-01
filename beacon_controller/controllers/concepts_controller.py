@@ -3,7 +3,9 @@ from swagger_server.models.beacon_concept_with_details import BeaconConceptWithD
 from swagger_server.models.exact_match_response import ExactMatchResponse  # noqa: E501
 
 from beacon_controller import biolink_model as blm
-from beacon_controller.providers import metabolites, proteins, pathways
+from beacon_controller.providers import pandas_helper as dh
+
+from beacon_controller.providers.curie import make_curie, get_category, make_uri, fix_prefix
 
 def get_concept_details(concept_id):  # noqa: E501
     """get_concept_details
@@ -15,14 +17,21 @@ def get_concept_details(concept_id):  # noqa: E501
 
     :rtype: BeaconConceptWithDetails
     """
-    concept_id = concept_id.upper()
-
-    if concept_id.startswith('SMP'):
-        return pathways.search_by_pathway_curie(concept_id)
-    else:
-        results = metabolites.search_by_molecule_curie(concept_id)
-        results += proteins.search_by_molecule_curie(concept_id)
-        return results
+    records = dh.get_nodes(concept_id)
+    for d in records:
+        if isinstance(d['xrefs'], str):
+            xrefs = d['xrefs'].split(';')
+        else:
+            xrefs = []
+        xrefs = [fix_prefix(xref) for xref in xrefs]
+        xrefs = [xref for xref in xrefs if xref.upper() != concept_id.upper() and xref is not None]
+        return BeaconConceptWithDetails(
+            id=concept_id,
+            uri=make_uri(concept_id),
+            name=d['name'],
+            categories=[d['category']],
+            exact_matches=xrefs
+        )
 
 def get_concepts(keywords=None, categories=None, offset=None, size=None):  # noqa: E501
     """get_concepts
@@ -40,32 +49,19 @@ def get_concepts(keywords=None, categories=None, offset=None, size=None):  # noq
 
     :rtype: List[BeaconConcept]
     """
-    results = []
-    if categories is None or any(category in blm.ancestors('metabolite') for category in categories):
-        concepts = metabolites.search(keywords)
-        for d in concepts:
-            d['category'] = 'metabolite'
-        results.extend(concepts)
+    nodes = dh.find_nodes(keywords=keywords, categories=categories, offset=offset, size=size)
 
-    if categories is None or any(category in blm.ancestors('protein') for category in categories):
-        concepts = proteins.search(keywords)
-        for d in concepts:
-            d['category'] = 'protein'
-        results.extend(concepts)
+    concepts = []
 
-    if categories is None or any(category in blm.ancestors('pathway') for category in categories):
-        concepts = pathways.search(keywords)
-        for d in concepts:
-            d['category'] = 'pathway'
-        results.extend(concepts)
+    for node in nodes:
+        concepts.append(BeaconConcept(
+            id=node['id'],
+            name=node['name'],
+            categories=[node['category']],
+            description=node['description'],
+        ))
 
-    if offset is not None:
-        results = results[offset:]
-
-    if size is not None:
-        results = results[:size]
-
-    return results
+    return concepts
 
 def get_exact_matches_to_concept_list(c):  # noqa: E501
     """get_exact_matches_to_concept_list
@@ -77,4 +73,30 @@ def get_exact_matches_to_concept_list(c):  # noqa: E501
 
     :rtype: List[ExactMatchResponse]
     """
-    return 'do some magic!'
+    c = [curie.upper() for curie in c]
+    records = dh.get_nodes(c)
+    data = {d['id'].upper() : d for d in records}
+    matches = []
+    for curie in c:
+        if curie in data:
+            record = data[curie]
+            if isinstance(record['xrefs'], str):
+                xrefs = record['xrefs'].split(';')
+            else:
+                xrefs = []
+
+            xrefs = [fix_prefix(xref) for xref in xrefs]
+            xrefs = [xref for xref in xrefs if xref != curie and xref is not None]
+
+            matches.append(ExactMatchResponse(
+                id=curie,
+                within_domain=True,
+                has_exact_matches=xrefs
+            ))
+        else:
+            matches.append(ExactMatchResponse(
+                id=curie,
+                within_domain=False,
+                has_exact_matches=[]
+            ))
+    return matches
