@@ -45,7 +45,7 @@ def build_metabolites(path) -> (pd.DataFrame, pd.DataFrame):
         ]
         for column, prefix in options:
             if isinstance(row[column], str):
-                return f'{prefix}:{row[column]}'
+                return '{}:{}'.format(prefix, row[column])
         print(row)
         raise Exception('Could not find a metabolite ID')
 
@@ -92,7 +92,7 @@ def build_proteins(path) -> (pd.DataFrame, pd.DataFrame):
         # xrefs = []
         for column, prefix in options:
             if isinstance(row[column], str):
-                return f'{prefix}:{row[column]}'
+                return '{}:{}'.format(prefix, row[column])
                 # xrefs.append(f'{prefix}:{row[column]}')
         # if xrefs == []:
         #     raise Exception('Cannot find ID for above row')

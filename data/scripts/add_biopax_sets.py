@@ -31,7 +31,7 @@ def get_curie_from_genesymbol(s):
     # Gene symbols are sometimes used as ID's. We will search for
     # HGNC identifiers for the given symbols
     # try:
-    uri=f'https://www.uniprot.org/uniprot/?query={s}&format=tab&columns=id,protein%20names,genes&sort=score&limit=100'
+    uri='https://www.uniprot.org/uniprot/?query={s}&format=tab&columns=id,protein%20names,genes&sort=score&limit=100'.format(s=s)
     print(uri)
     df = pd.read_csv(uri, sep='\t')
     records = df.to_dict(orient='records')
@@ -41,12 +41,9 @@ def get_curie_from_genesymbol(s):
             for term in str(value).split(' '):
                 # print(column, term)
                 if term.lower() == s.lower():
-                    print(f'Mapped gene symbol {s} to {curie}')
+                    print('Mapped gene symbol {s} to {curie}'.format(s=s, curie=curie))
                     return record['Entry']
     return None
-    # except:
-    #     print(f'Fail: Could not map gene symbole {s} to a curie')
-    #     return None
 
 def is_not_curie(s):
     return ':' not in s
@@ -61,7 +58,7 @@ def infer_category(category):
     elif category == 'DnaReference':
         return 'genomic entity'
     else:
-        raise Exception(f'Unknown category {category}')
+        raise Exception('Unknown category {category}'.format(category=category))
 
 if __name__ == '__main__':
     print('loading biopax files')
@@ -105,8 +102,8 @@ if __name__ == '__main__':
     edges = edges[(edges.subject_id.isnull() == False) & (edges.object_id.isnull() == False)]
     nodes = nodes[nodes.id.isnull() == False]
 
-    print(f'threw away {edges.shape[0] - c1} many edges')
-    print(f'threw away {nodes.shape[0] - c2} many nodes')
+    print('threw away {} many edges'.format(edges.shape[0] - c1))
+    print('threw away {} many nodes'.format(nodes.shape[0] - c2))
 
     print('Overwriting original files')
     edges.to_csv(edge_path, index=False)

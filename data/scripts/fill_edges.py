@@ -22,7 +22,7 @@ def fill_edges(edges:pd.DataFrame, nodes:pd.DataFrame) -> pd.DataFrame:
 
     edges = edges.drop_duplicates()
 
-    print(f'Lost {count - edges.shape[0]} rows')
+    print('Lost {} rows'.format(count - edges.shape[0]))
 
     return edges
 
