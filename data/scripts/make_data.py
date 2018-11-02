@@ -24,7 +24,7 @@ def build_pathways(path) -> pd.DataFrame:
     })
 
     df['category'] = 'pathway'
-    df['id'] = df.apply(lambda row: f"SMP:{row['id']}", axis=1)
+    df['id'] = df.apply(lambda row: "SMP:{}".format(row['id']), axis=1)
 
     df = make_node_set(df)
 
@@ -54,7 +54,7 @@ def build_metabolites(path) -> (pd.DataFrame, pd.DataFrame):
     df['id'] = df.apply(build, axis=1)
     df = df.drop_duplicates('id')
 
-    df['SMPDB ID'] = df.apply(lambda row: f"SMP:{row['SMPDB ID']}", axis=1)
+    df['SMPDB ID'] = df.apply(lambda row: "SMP:{}".format(row['SMPDB ID']), axis=1)
 
     nodes = df
     edges = df
@@ -107,7 +107,7 @@ def build_proteins(path) -> (pd.DataFrame, pd.DataFrame):
 
     df = df.drop_duplicates('id')
 
-    df['SMPDB ID'] = df.apply(lambda row: f"SMP:{row['SMPDB ID']}", axis=1)
+    df['SMPDB ID'] = df.apply(lambda row: "SMP:{}".format(row['SMPDB ID']), axis=1)
 
     nodes = df
     edges = df
