@@ -25,10 +25,10 @@ concat-dir:
 	sh scripts/concat_dir.sh downloads/metabolites downloads/metabolites.csv header
 
 build-data-sets:
-	python scripts/make_data.py downloads/metabolites.csv downloads/proteins.csv downloads/pathways/smpdb_pathways.csv
+	python3 scripts/make_data.py downloads/metabolites.csv downloads/proteins.csv downloads/pathways/smpdb_pathways.csv
 	# Comment out the line below if biopax-edges.tsv biopax-nodes.tsv are absent
-	python scripts/add_biopax_sets.py edges.csv nodes.csv biopax-edges.tsv biopax-nodes.tsv
-	python scripts/fill_edges.py edges.csv nodes.csv
+	python3 scripts/add_biopax_sets.py edges.csv nodes.csv biopax-edges.tsv biopax-nodes.tsv
+	python3 scripts/fill_edges.py edges.csv nodes.csv
 
 clean:
 	rm -rf downloads
