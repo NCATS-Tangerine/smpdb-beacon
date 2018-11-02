@@ -9,8 +9,8 @@ if [ "$3" = "header" ]; then
 
   for filename in "$1"/*
   do
-    # Ignore first line of each file
-    sed 1d -e '$a\' $filename >> "$2"
+    # 1d means delete first line, $a\ means add a new line at the end
+    sed -e '1d; $a\' $filename >> "$2"
   done
 
 elif [ "$3" = "noheader" ]; then

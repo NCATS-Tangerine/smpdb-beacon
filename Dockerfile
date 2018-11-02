@@ -6,12 +6,15 @@ WORKDIR /usr/src/app
 COPY beacon_controller /usr/src/app/beacon_controller
 COPY config /usr/src/app/config
 COPY beacon /usr/src/app/beacon
-COPY data   /usr/src/app/data
+COPY data/__init__.py /usr/src/app/data/__init__.py
 
 COPY MANIFEST.in /usr/src/app/MANIFEST.in
 COPY setup.py /usr/src/app/setup.py
 
-RUN python setup.py install
+# Install in edit mode so that we don't need to install the data files
+# when the docker container is built. This way we can pass the data
+# files in through a volume.
+RUN pip install -e .
 
 WORKDIR /usr/src/app/beacon
 
