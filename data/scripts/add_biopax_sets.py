@@ -25,7 +25,7 @@ def ensure_curie_or_None(s):
         try:
             return make_curie(s)
         except:
-            return s
+            return None
 
 def get_curie_from_genesymbol(s):
     # Gene symbols are sometimes used as ID's. We will search for
@@ -99,11 +99,11 @@ if __name__ == '__main__':
     # edges.object_id = edges.object_id.apply(lambda x: d[x] if x in d else x)
     # nodes.id = nodes.id.apply(lambda x: d[x] if x in d else x)
 
-    edges = edges[(edges.subject_id.isnull() == False) & (edges.object_id.isnull() == False)]
+    edges = edges[(edges.subject_id.isnull() == False) | (edges.object_id.isnull() == False)]
     nodes = nodes[nodes.id.isnull() == False]
 
-    print('threw away {} many edges'.format(edges.shape[0] - c1))
-    print('threw away {} many nodes'.format(nodes.shape[0] - c2))
+    print('threw away {} many edges'.format(c1 - edges.shape[0]))
+    print('threw away {} many nodes'.format(c2 - nodes.shape[0]))
 
     print('Overwriting original files')
     edges.to_csv(edge_path, index=False)
