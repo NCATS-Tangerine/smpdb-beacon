@@ -47,8 +47,9 @@ def get_prefixes(df):
         if isinstance(curies, str):
             curies = curies.split(';')
             for curie in curies:
-                prefix, _ = curie.rsplit(':', 1)
-                s.add(prefix)
+                if ':' in curie:
+                    prefix, _ = curie.rsplit(':', 1)
+                    s.add(prefix)
     df.xrefs.apply(add_prefixes)
     df.id.apply(add_prefixes)
     return s
