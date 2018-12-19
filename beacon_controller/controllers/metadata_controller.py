@@ -4,11 +4,31 @@ from swagger_server.models.beacon_knowledge_map_object import BeaconKnowledgeMap
 from swagger_server.models.beacon_knowledge_map_subject import BeaconKnowledgeMapSubject
 from swagger_server.models.beacon_knowledge_map_predicate import BeaconKnowledgeMapPredicate
 from swagger_server.models.beacon_predicate import BeaconPredicate  # noqa: E501
+from swagger_server.models.namespace import Namespace
+from swagger_server.models.local_namespace import LocalNamespace
 
 from beacon_controller.providers import pandas_helper as dh
 import beacon_controller.biolink_model as blm
+
 from itertools import product
+from collections import defaultdict, Counter
+
 import functools
+
+from prefixcommons.curie_util import default_curie_maps as cmaps
+
+def prefix_to_uri(prefix):
+    """
+    Pulls the default curie map from prefixcommons and gets the uri from it
+    """
+    prefix = prefix.upper()
+
+    for cmap in cmaps:
+        for key, value in cmap.items():
+            if prefix.lower() == key.lower():
+                return value
+    else:
+        return f'http://identifiers.org/{prefix.lower()}/'
 
 @functools.lru_cache()
 def get_concept_categories():  # noqa: E501
@@ -134,3 +154,46 @@ def get_predicates():  # noqa: E501
             frequency=frequency,
         ))
     return predicates
+
+def get_prefix(curie:str) -> str:
+    prefix, _ = curie.rsplit(':', 1)
+    return prefix
+
+@functools.lru_cache()
+def get_namespaces():  # noqa: E501
+    """get_namespaces
+
+    Get a list of namespace (curie prefixes) mappings that this beacon can perform with its /exactmatches endpoint  # noqa: E501
+
+
+    :rtype: List[LocalNamespace]
+    """
+    df = dh.load_nodes()
+
+    d = defaultdict(set)
+    l = []
+
+    def fill_metadata(row):
+        prefix = get_prefix(row.id)
+        xrefs = [get_prefix(curie) for curie in row.xrefs.split(';') if curie.lower() != row.id.lower()]
+        d[prefix].update(xrefs)
+        l.append(prefix)
+
+    df.apply(fill_metadata, axis=1)
+
+    count = Counter(l)
+
+    local_namespaces = []
+    for local_prefix, curie_mappings in d.items():
+        namespaces = []
+        for prefix in curie_mappings:
+            namespaces.append(Namespace(prefix=prefix, uri=prefix_to_uri(prefix)))
+
+        local_namespaces.append(LocalNamespace(
+            local_prefix=local_prefix,
+            clique_mappings=namespaces,
+            uri=prefix_to_uri(local_prefix),
+            frequency=count[local_prefix]
+        ))
+
+    return local_namespaces

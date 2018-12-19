@@ -17,4 +17,6 @@ class JSONEncoder(FlaskJSONEncoder):
                 attr = o.attribute_map[attr]
                 dikt[attr] = value
             return dikt
+        if isinstance(o, set):
+            return list(o)
         return FlaskJSONEncoder.default(self, o)

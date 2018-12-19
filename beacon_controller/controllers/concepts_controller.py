@@ -63,6 +63,9 @@ def get_concepts(keywords=None, categories=None, offset=None, size=None):  # noq
 
     return concepts
 
+import re
+from collections import defaultdict
+
 def get_exact_matches_to_concept_list(c):  # noqa: E501
     """get_exact_matches_to_concept_list
 
@@ -73,25 +76,31 @@ def get_exact_matches_to_concept_list(c):  # noqa: E501
 
     :rtype: List[ExactMatchResponse]
     """
-    c = [curie.upper() for curie in c]
-    records = dh.get_nodes(c)
-    data = {d['id'].upper() : d for d in records}
+    d = defaultdict(set)
+
     matches = []
     for curie in c:
-        if curie in data:
-            record = data[curie]
-            if isinstance(record['xrefs'], str):
-                xrefs = record['xrefs'].split(';')
-            else:
-                xrefs = []
+        df = dh.load_nodes()
 
-            xrefs = [fix_prefix(xref) for xref in xrefs]
-            xrefs = [xref for xref in xrefs if xref != curie and xref is not None]
+        id_match = df.id.str.contains(curie, flags=re.IGNORECASE, regex=False)
+        xref_match = df.xrefs.str.contains(curie, flags=re.IGNORECASE, regex=False)
 
+        df = df[id_match | xref_match]
+
+        for row in df.to_dict(orient='records'):
+            d[curie].add(row['id'])
+
+            if isinstance(row['xrefs'], str):
+                xrefs = row['xrefs'].split(';') if row['xrefs'] is not None else []
+                d[curie].update(xrefs)
+
+    for curie in c:
+        if curie in d and curie in d[curie]:
+            d[curie].remove(curie)
             matches.append(ExactMatchResponse(
                 id=curie,
                 within_domain=True,
-                has_exact_matches=xrefs
+                has_exact_matches=list(d[curie])
             ))
         else:
             matches.append(ExactMatchResponse(
@@ -99,4 +108,5 @@ def get_exact_matches_to_concept_list(c):  # noqa: E501
                 within_domain=False,
                 has_exact_matches=[]
             ))
+
     return matches

@@ -1,3 +1,6 @@
+install-requirements:
+	pip install click pandas
+
 run:
 	make download
 	make unzip
@@ -29,6 +32,8 @@ build-data-sets:
 	# Comment out the line below if biopax-edges.tsv biopax-nodes.tsv are absent
 	python3 scripts/add_biopax_sets.py edges.csv nodes.csv biopax-edges.tsv biopax-nodes.tsv
 	python3 scripts/fill_edges.py edges.csv nodes.csv
+
+	python3 scripts/fix_curies.py --file nodes.csv --out nodes.csv
 
 clean:
 	rm -rf downloads

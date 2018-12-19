@@ -20,3 +20,5 @@ from swagger_server.models.beacon_statement_predicate import BeaconStatementPred
 from swagger_server.models.beacon_statement_subject import BeaconStatementSubject
 from swagger_server.models.beacon_statement_with_details import BeaconStatementWithDetails
 from swagger_server.models.exact_match_response import ExactMatchResponse
+from swagger_server.models.local_namespace import LocalNamespace
+from swagger_server.models.namespace import Namespace

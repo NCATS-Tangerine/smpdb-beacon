@@ -23,6 +23,34 @@ schemes:
 produces:
 - "application/json"
 paths:
+  /namespaces:
+    get:
+      tags:
+      - "metadata"
+      description: "Get a list of namespace (curie prefixes) mappings that this beacon\
+        \ can perform with its /exactmatches endpoint\n"
+      operationId: "get_namespaces"
+      parameters: []
+      responses:
+        200:
+          description: "Successful response with categories and frequency returned\n"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/LocalNamespace"
+          examples:
+            application/json:
+            - local_prefix: "RHEA"
+              uri: "http://identifiers.org/rhea/"
+              clique_mappings:
+              - prefix: "MACIE"
+                uri: "http://identifiers.org/macie/"
+              - prefix: "KEGG"
+                uri: "http://identifiers.org/kegg/"
+              - prefix: "KEGG.REACTION"
+                uri: "http://identifiers.org/kegg.reaction/"
+              frequency: 5283
+      x-swagger-router-controller: "swagger_server.controllers.metadata_controller"
   /categories:
     get:
       tags:
@@ -147,14 +175,15 @@ paths:
           \ 'size' to return.\n"
         required: false
         type: "integer"
+        minimum: 0
       - name: "size"
         in: "query"
-        default: 100
         description: "maximum number of concept entries requested by the client; if\
           \ this argument is omitted, then the query is expected to returned all the\
           \ available data for the query\n"
         required: false
         type: "integer"
+        minimum: 0
       responses:
         200:
           description: "Successful response with list of core concept data returned\n"
@@ -368,14 +397,15 @@ paths:
           \ 'size' to return.\n"
         required: false
         type: "integer"
+        minimum: 0
       - name: "size"
         in: "query"
-        default: 100
         description: "maximum number of concept entries requested by the client; if\
           \ this argument is omitted, then the query is expected to returned all \
           \ the available data for the query\n"
         required: false
         type: "integer"
+        minimum: 0
       responses:
         200:
           description: "Successful response returns a list of concept-relations where\
@@ -436,14 +466,15 @@ paths:
           \ of amount 'size' to return.\n"
         required: false
         type: "integer"
+        minimum: 0
       - name: "size"
         in: "query"
-        default: 100
         description: "maximum number of evidence citation entries requested by the\
           \ client; if this  argument is omitted, then the query is expected to returned\
           \ all of the available annotation for this statement\n"
         required: false
         type: "integer"
+        minimum: 0
       responses:
         200:
           description: "successful call with statement details returned\n"
@@ -493,6 +524,19 @@ definitions:
       negated:
         type: "boolean"
         description: "Indicates whether edge statement is negated (i.e. is not true)\n"
+  LocalNamespace:
+    properties:
+      local_prefix:
+        type: "string"
+        description: "a CURIE prefix that is used to identify records by this beacon"
+      uri:
+        type: "string"
+        description: "The expansion of the CURIE prefix"
+      clique_mappings:
+        $ref: "#/definitions/Namespace"
+      frequency:
+        type: "integer"
+        description: "The number of concepts with CURIE identifiers in this namespace"
   BeaconStatementCitation:
     properties:
       id:
@@ -643,6 +687,15 @@ definitions:
         type: "integer"
         description: "the number of concept entries of the specified type in the beacon\
           \ knowledge base"
+  Namespace:
+    properties:
+      prefix:
+        type: "string"
+        description: "a CURIE prefix for which there are clique mappings available\
+          \ in the /exactmatches endpoint"
+      uri:
+        type: "string"
+        description: "the expansion of the CURIE prefix"
   BeaconKnowledgeMapObject:
     properties:
       category:
