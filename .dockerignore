@@ -1,0 +1,4 @@
+.git
+/data/*.csv
+/data/*.tsv
+/data/scripts
