@@ -175,9 +175,12 @@ def get_namespaces():  # noqa: E501
 
     def fill_metadata(row):
         prefix = get_prefix(row.id)
-        xrefs = [get_prefix(curie) for curie in row.xrefs.split(';') if curie.lower() != row.id.lower()]
-        d[prefix].update(xrefs)
-        l.append(prefix)
+        if isinstance(row.xrefs, str):
+            xrefs = [get_prefix(curie) for curie in row.xrefs.split(';') if curie.lower() != row.id.lower()]
+            if xrefs != []:
+                d[prefix].update(xrefs)
+                l.append(prefix)
+
 
     df.apply(fill_metadata, axis=1)
 
