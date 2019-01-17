@@ -61,7 +61,7 @@ The [Makefile](Makefile) in the root directory can be used to run the applicatio
 ~/smpdb-beacon$ make run
 ```
 
-Alternatively you can run the application as a Docker container:
+Alternatively you can run the application within a [Docker](https://docs.docker.com/engine/installation/) container:
 
 ```shell
 ~/smpdb-beacon$ make docker-build
