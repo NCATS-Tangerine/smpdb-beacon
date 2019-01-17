@@ -1,3 +1,8 @@
+"""
+This package holds the implementation details for the controllers in the `beacon`
+package.
+"""
+
 from config import config
 
 from . import biolink_model

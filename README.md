@@ -37,15 +37,21 @@ Some of the data is hosted on box, and can be downloaded [here](https://app.box.
 ```
 
 This will run through the following commands:
-```
-make install-requirements
-make download
-make unzip
-make concat-dir
-make setup-biopax-files
-make build-data-sets
-make clean
-```
+
+1. `make install-requirements`
+Installs the packages that are needed to run the data pre-processing scripts
+2. `make download`
+Downloads a majority of the data (as mentioned above, some of it will need to be manually downloaded)
+3. `make unzip`
+Unzips the downloaded zip files
+4. `make concat-dir`
+The unzipped directories contain individual files for each record. This command combines them into a single CSV.
+5. `make setup-biopax-files`
+This command processes the biopax zip files that needed to be manually downloaded
+6. `make build-data-sets`
+This does the bulk of the pre-processing work, cleaning up identifiers and removing duplicate records
+7. `make clean`
+Deletes everything in the `data/downloads` directory except for `data/downloads/.gitignore`
 
 ### Running
 
