@@ -28,4 +28,4 @@ docker-logs:
 
 regenerate:
 	wget --no-clobber http://central.maven.org/maven2/io/swagger/swagger-codegen-cli/2.3.1/swagger-codegen-cli-2.3.1.jar -O swagger-codegen-cli.jar | true
-	java -jar swagger-codegen-cli generate -i $SPECIFICATION -l python-flask -o beacon
+	java -jar swagger-codegen-cli.jar generate -i ${SPECIFICATION} -l python-flask -o beacon
