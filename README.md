@@ -2,15 +2,21 @@
 
 Knowledge beacon wrapper for http://smpdb.ca/
 
+Hosted at https://kba.ncats.io/beacon/smpdb/
+
+Python Beacon client https://github.com/NCATS-Tangerine/tkbeacon-python-client
+
 ## Getting started
+
+This project was developed using Python 3.6, and it is advised that you use this version.
 
 ### Create virtual environment
 
 It is helpful to keep a local virtual environment in which all local dependencies can be installed.
 
 ```sh
-~/smpdb-beacon$ virtualenv -p python3.6 venv
-~/smpdb-beacon$ source venv/bin/activate
+virtualenv -p python3.6 venv
+source venv/bin/activate
 ```
 
 ### Configuring
@@ -22,8 +28,10 @@ The [config/config.yaml](config/config.yaml) file can be modified to change some
 The [Makefile](Makefile) in the root directory can be used to install the application. You will need to install this project before using some of the scripts in `data/scripts` to get and clean up the data, as they depend on some modules in `beacon_controller`.
 
 ```shell
-~/smpdb-beacon$ make install
+make install
 ```
+
+**Note:** if you make changes to `config/config.yaml` you will need to re-install the application for those results to be used. Alternatively, you can use the command `make dev-install` to avoid needing to re-install each time you make a change.
 
 ### Getting the data
 
@@ -32,8 +40,8 @@ See [data/Makefile](data/Makefile) for downloading and pre-processing the files 
 Some of the data is hosted on box, and can be downloaded [here](https://app.box.com/s/5xq1a7bibcp49vbn6xv0o4f1sl6x4w0d). Unfortunately direct downloads are not supported on the free version of box, and so the data/Makefile cannot automatically download it. After downloading edges.zip and nodes.zip place them in the `data/downloads` directory. The other files needed will be automatically downloaded by the Makefile.
 
 ```shell
-~/smpdb-beacon$ cd data
-~/smpdb-beacon/data$ make setup
+cd data
+make setup
 ```
 
 This will run through the following commands:
@@ -58,14 +66,24 @@ Deletes everything in the `data/downloads` directory except for `data/downloads/
 The [Makefile](Makefile) in the root directory can be used to run the application:
 
 ```shell
-~/smpdb-beacon$ make run
+make run
 ```
+
+View it at http://localhost:8080
 
 Alternatively you can run the application within a [Docker](https://docs.docker.com/engine/installation/) container:
 
 ```shell
-~/smpdb-beacon$ make docker-build
-~/smpdb-beacon$ make docker-run
+make docker-build
+make docker-run
+```
+
+View it at http://localhost:8085/
+
+To stop the docker container you can use the command:
+
+```shell
+make docker-stop
 ```
 
 ## Project structure
