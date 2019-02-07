@@ -77,6 +77,7 @@ def get_exact_matches_to_concept_list(c):  # noqa: E501
     :rtype: List[ExactMatchResponse]
     """
     d = defaultdict(set)
+    within_domain = defaultdict(lambda x: False)
 
     matches = []
     for curie in c:
@@ -84,6 +85,8 @@ def get_exact_matches_to_concept_list(c):  # noqa: E501
 
         id_match = df.id.str.contains(curie, flags=re.IGNORECASE, regex=False)
         xref_match = df.xrefs.str.contains(curie, flags=re.IGNORECASE, regex=False)
+
+        within_domain[curie] = len(df[id_match]) != 0
 
         df = df[id_match | xref_match]
 
@@ -99,7 +102,7 @@ def get_exact_matches_to_concept_list(c):  # noqa: E501
             d[curie].remove(curie)
             matches.append(ExactMatchResponse(
                 id=curie,
-                within_domain=True,
+                within_domain=within_domain[curie],
                 has_exact_matches=list(d[curie])
             ))
         else:
