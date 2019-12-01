@@ -78,19 +78,14 @@ def get_knowledge_map():  # noqa: E501
     :rtype: List[BeaconKnowledgeMapStatement]
     """
     df = dh.load_edges()
-    d = df.groupby(['subject_category', 'predicate', 'object_category']).size().to_dict()
+    groups = df.groupby(['subject_category', 'edgelabel', 'relation', 'object_category'])
+    d = groups.size().to_dict()
 
     kmaps = []
-    for (subject_category, predicate, object_category), frequency in d.items():
-        s = blm.get_slot(predicate)
-        if s is not None:
-            edge_label = predicate
-            relation = predicate
-        else:
-            edge_label = 'related_to'
-            relation = predicate
+    for (subject_category, edge_label, relation, object_category), frequency in d.items():
+        s = blm.get_slot(edge_label)
 
-        edges = df[df['predicate'] == predicate]
+        edges = df[df['relation'] == relation]
 
         subject_prefixes = edges.subject_id.apply(prefix).unique()
         object_prefixes = edges.object_id.apply(prefix).unique()
@@ -133,24 +128,16 @@ def get_predicates():  # noqa: E501
     :rtype: List[BeaconPredicate]
     """
     df = dh.load_edges()
-    d = df.groupby('predicate').size().to_dict()
+    d = df.groupby(['edgelabel', 'relation']).size().to_dict()
 
     predicates = []
-    for predicate, frequency in d.items():
-        s = blm.get_slot(predicate)
-        if s is not None:
-            edge_label = predicate
-            relation = predicate
-            description = s.description
-        else:
-            edge_label = 'related_to'
-            relation = predicate
-            description = None
+    for (edge_label, relation), frequency in d.items():
+        s = blm.get_slot(edge_label)
 
         predicates.append(BeaconPredicate(
             edge_label=edge_label,
             relation=relation,
-            description=description,
+            description=s.description,
             frequency=frequency,
         ))
     return predicates

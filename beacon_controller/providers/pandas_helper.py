@@ -103,7 +103,8 @@ def find_edges(
     object_ids,
     object_keywords,
     object_categories,
-    predicates,
+    edgelabels,
+    relations,
     offset=None,
     size=None,
 ):
@@ -137,8 +138,11 @@ def find_edges(
     if is_not_empty(object_categories):
         q = build_mask(object_categories, lambda c: df['object_category'] == c.lower(), c=q)
 
-    if is_not_empty(predicates):
-        q = build_mask(predicates, lambda p: df['predicate'] == p, c=q)
+    if is_not_empty(relations):
+        q = build_mask(relations, lambda p: df['relation'] == p.lower(), c=q)
+
+    if is_not_empty(edgelabels):
+        q = build_mask(edgelabels, lambda p: df['edgelabel'] == p.lower(), c=q)
 
     if q is not None:
         df = df[q == True]

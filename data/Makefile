@@ -42,6 +42,7 @@ build-data-sets:
 	python3 scripts/fill_edges.py edges.csv nodes.csv
 
 	python3 scripts/fix_curies.py --file nodes.csv --out nodes.csv
+	python3 scripts/fix_predicates.py --file edges.csv --out edges.csv
 
 clean:
 	# Delete everything in downloads directory except for .gitignore

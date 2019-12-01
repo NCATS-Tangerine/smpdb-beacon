@@ -22,6 +22,7 @@ setup(
         'pyyaml',
         'connexion == 1.1.15',
         'python_dateutil == 2.6.0',
-        'setuptools >= 21.0.0'
+        'setuptools >= 21.0.0',
+        'bmt',
     ]
 )

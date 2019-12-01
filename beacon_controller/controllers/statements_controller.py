@@ -67,12 +67,8 @@ def get_statements(s=None, s_keywords=None, s_categories=None, edge_label=None, 
 
     :rtype: List[BeaconStatement].
     """
-    predicates = []
-    if edge_label is not None and edge_label != 'related_to':
-        predicates.append(edge_label)
-
-    if relation is not None:
-        predicates.append(relation)
+    if size is None:
+        size = 10
 
     edges = dh.find_edges(
         s,
@@ -81,7 +77,8 @@ def get_statements(s=None, s_keywords=None, s_categories=None, edge_label=None, 
         t,
         t_keywords,
         t_categories,
-        predicates,
+        [edge_label] if edge_label is not None else [],
+        [relation] if relation is not None else [],
         offset,
         size
     )
@@ -89,13 +86,6 @@ def get_statements(s=None, s_keywords=None, s_categories=None, edge_label=None, 
     statements = []
 
     for edge in edges:
-        if blm.is_slot(edge['predicate']):
-            edge_label = edge['predicate']
-            relation = edge['predicate']
-        else:
-            edge_label = 'related_to'
-            relation = edge['predicate']
-
         s = BeaconStatementSubject(
             id=edge['subject_id'],
             name=edge['subject_name'],
@@ -103,8 +93,8 @@ def get_statements(s=None, s_keywords=None, s_categories=None, edge_label=None, 
         )
 
         p = BeaconStatementPredicate(
-            edge_label=edge_label,
-            relation=relation,
+            edge_label=edge['edgelabel'],
+            relation=edge['relation'],
             negated=False,
         )
 
