@@ -8,14 +8,14 @@ Python Beacon client https://github.com/NCATS-Tangerine/tkbeacon-python-client
 
 ## Getting started
 
-This project was developed using Python 3.6, and it is advised that you use this version.
+The latest release of this project expects the use of Python 3.7, and it is advised that you use this version.
 
 ### Create virtual environment
 
-It is helpful to keep a local virtual environment in which all local dependencies can be installed.
+It is helpful to keep a local virtual environment in which all local dependencies as well as the application can be installed.
 
 ```sh
-virtualenv -p python3.6 venv
+virtualenv -p python3.7 venv
 source venv/bin/activate
 ```
 
