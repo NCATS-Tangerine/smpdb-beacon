@@ -1,15 +1,15 @@
 SPECIFICATION=api/1.3.0.yaml
 
 install:
-	pip install .
-	pip install beacon/
+	python -m pip install .
+	python -m pip  install beacon/
 
 venv:
 	virtualenv -p python3.7 venv
 
 dev-install:
-	pip install -e .
-	pip install beacon/
+	python -m pip install -e .
+	python -m pip install beacon/
 
 run:
 	cd beacon && python -m swagger_server
