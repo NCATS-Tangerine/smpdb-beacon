@@ -2,9 +2,9 @@
 swagger: "2.0"
 info:
   description: "This is the Translator Knowledge Beacon web service application programming\
-    \ interface (API).\n"
+    \ interface (API) wrapping the Small Molecule Pathway Database (smpdb.ca).\n"
   version: "1.3.0"
-  title: "Translator Knowledge Beacon API"
+  title: "Small Molecule Pathway Database Translator Knowledge Beacon API"
   contact:
     url: "http://starinformatics.com"
     email: "richard@starinformatics.com"
