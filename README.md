@@ -19,6 +19,8 @@ virtualenv -p python3.7 venv
 source venv/bin/activate
 ```
 
+We assume, within the setup scripts, that the `python` executable within this `venv` will be a Python 3.7 binary.
+
 ### Configuring
 
 The [config/config.yaml](config/config.yaml) file can be modified to change some behaviours of this application.

@@ -1,13 +1,13 @@
 swagger: '2.0'
 info:
-  title: Translator Knowledge Beacon API
+  title: Small Molecule Pathway Database Translator Knowledge Beacon API
   version: 1.3.0
   contact:
     url: 'http://starinformatics.com'
     email: richard@starinformatics.com
   description: >
     This is the Translator Knowledge Beacon web service application programming
-    interface (API).
+    interface (API) wrapping the Small Molecule Pathway Database (smpdb.ca)
   license:
     name: MIT License
     url: 'http://opensource.org/licenses/MIT'
