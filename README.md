@@ -37,16 +37,22 @@ make install
 
 ### Getting the data
 
-See [data/Makefile](data/Makefile) for downloading and pre-processing the files needed.
+A prepared [Makefile](data/Makefile) is used to download and pre-processing the files needed to build a local SMPDB dataset for publication by this beacon.
 
-Some of the data is hosted on box, and can be downloaded [here](https://app.box.com/s/5xq1a7bibcp49vbn6xv0o4f1sl6x4w0d). Unfortunately direct downloads are not supported on the free version of box, and so the data/Makefile cannot automatically download it. After downloading edges.zip and nodes.zip place them in the `data/downloads` directory. The other files needed will be automatically downloaded by the Makefile.
+#### Prerequisites
+
+Some of the data used by the Makefile are two large data archive files - *edges.zip* and *nodes.zip* - which must be manually downloaded from an existing (currently, Box) archive site **[here](https://app.box.com/s/5xq1a7bibcp49vbn6xv0o4f1sl6x4w0d)** (Unfortunately direct downloads are not supported on the free version of Box, where this data is currently hosted, thus the data/Makefile cannot automatically download it). These two files should be placed into the `data/downloads` directory of the cloned project.  The other files needed will be automatically downloaded by the Makefile.
+
+#### Building the Dataset
+
+After downloading the above prerequisite files, run the following to build the dataset:
 
 ```shell
 cd data
 make setup
 ```
 
-This will run through the following commands:
+This executes h the following subordinate make targets:
 
 1. `make install-requirements`
 Installs the packages that are needed to run the data pre-processing scripts
